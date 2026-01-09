@@ -6,7 +6,7 @@
 	<meta name="author"
 		content="Leandro Ricardo Neumann - Eduardo Ivan Beckemkamp - Jonathan Ramon Peixoto - Luiz Gustavo Rupp" />
 	<title>UNISC - Trabalho de Inteligência Artificial</title>
-	<link href="css/menu.css" rel="stylesheet">
+	<link href="css/style.css" rel="stylesheet">
 	<link href="css/smoothness/jquery-ui-1.9.2.custom.css" rel="stylesheet">
 	<script type="text/javascript" src="js/jquery-1.8.3.js"></script>
 	<script type="text/javascript" src="js/jquery-ui-1.9.2.custom.min.js"></script>
@@ -80,51 +80,48 @@
 
 <body>
 
-	<ul class="menu">
-		<li>
-			<a href="#">Editar</a>
-			<ul>
-				<li><a href="#" onclick="limpaValoresEQuebras()">Limpar Valores</a></li>
-				<li><a href="#" onclick="excluirTudo()">Excluir Tudo</a></li>
-				<li><a href="#" onclick="gerarExemplo()">Gerar Árvore Exemplo</a></li>
-				<li><a href="#" onclick="definirValoresLista()">Definir Valores por Lista</a></li>
-			</ul>
-		</li>
-		<li>
-			<a href="#">Executar</a>
-			<ul>
-				<li>
-					<a href="#" onclick="criaMiniMax()">MiniMax</a>
-				</li>
-				<li>
-					<a href="#" onclick="criaPoda()">Poda Alpha-Beta</a>
-				</li>
-			</ul>
-		</li>
-		<li>
-			<a href="#">Ajuda</a>
-			<ul>
-				<li>
-					<a href="http://www.youtube.com/watch?v=ceU9sNFaSM8" target="_blank">Vídeo Tutorial</a>
-				</li>
-				<li>
-					<a href="#" onclick="$('#dialog-sobre').dialog('open')">Sobre</a>
-				</li>
-			</ul>
-		</li>
+	<!-- Toolbar -->
+	<div id="toolbar">
+		<div class="toolbar-group">
+			<button onclick="uiReset()">Excluir Tudo</button>
+			<button onclick="gerarExemplo()">Gerar Exemplo</button>
+			<button onclick="definirValoresLista()">Sets Vals (Lista)</button>
+		</div>
+		<div class="toolbar-group">
+			<button onclick="uiAddFilho(1)" title="Add 1 Child">+1</button>
+			<button onclick="uiAddFilho(2)" title="Add 2 Children">+2</button>
+			<button onclick="uiAddFilho(3)" title="Add 3 Children">+3</button>
+			<button onclick="uiSetValor()" title="Set Leaf Value">Valor</button>
+			<button onclick="uiRemoveNode()" title="Remove Selected Node"
+				style="background-color: #c0392b;">Del</button>
+		</div>
+		<div class="toolbar-group">
+			<button onclick="criaMiniMax()">MiniMax</button>
+			<button onclick="criaPoda()">Alpha-Beta</button>
+			<button onclick="limpaValoresEQuebras()">Limpar Ex.</button>
+		</div>
 
-		<li style="margin-right: 20px; position: relative; top: 0px; left: 0px; display: none;" id="menu_execucao">
-			<img onclick="executarPassoAnterior()" src="images/previous.png"
-				style="width: 24px; position: absolute; top: 1px; left: 350px;" title="Previous" />
-			<img onclick="executarProximoPasso()" src="images/next.png"
-				style="width: 24px; position: absolute; top: 1px; left: 384px;" title="Next" />
+		<!-- Execution Controls (Hidden by default) -->
+		<div class="toolbar-group" id="menu_execucao"
+			style="display:none; border-left: 2px solid white; padding-left: 15px;">
+			<button onclick="executarPassoAnterior()"> &lt; Prev </button>
+			<button onclick="executarProximoPasso()"> Next &gt; </button>
+			<button onclick="executarFinal()"> Resultado </button>
+			<button onclick="finalizarExecucao()" style="background-color: #e67e22;">Sair</button>
+		</div>
+	</div>
 
-			<button onclick="executarFinal()" style="position: absolute; left: 418px; top: -2px; width: 110px;">Ver
-				resultado</button>
-			<button onclick="finalizarExecucao()"
-				style="position: absolute; left: 540px; top: -2px; width: 140px;">Finalizar execução</button>
-		</li>
-	</ul>
+	<!-- Modal Overlay -->
+	<div id="modal-overlay">
+		<div id="modal">
+			<h3 id="modal-title">Title</h3>
+			<div id="modal-content"></div>
+			<div class="modal-actions">
+				<button class="cancel" onclick="closeModal()">Cancel</button>
+				<button class="confirm" id="modal-confirm">Confirm</button>
+			</div>
+		</div>
+	</div>
 	<div id="main">
 
 		<canvas width="1000" height="600" id="drawing" style="position: relative; top:0px; left:0px;">

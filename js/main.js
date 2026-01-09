@@ -60,6 +60,7 @@ var tela;
 var divOpcoes;
 var divOpcoesAberta = false;
 var clickLiberado = false;
+var selectedNode = null;
 
 var execucao = new Array();
 var focoExecucao = new Array();
@@ -92,59 +93,21 @@ function init() {
 }
 
 function ckmouse(e) {
-
-	$(divOpcoes).hide();
+	if (e.target.tagName !== 'CANVAS') return; // Safety check
 
 	var nodo = null;
 	for (var i = 0; i < nodos.length; i++) {
 		if (isInCircle(e.offsetX, e.offsetY, nodos[i].x, nodos[i].y, larguraNodo / 2)) {
-			//alert(e.offsetX + " | " + e.offsetY);
 			nodo = nodos[i];
 			break;
 		}
 	}
 
-	if (nodo == null) {
-		return;
-	}
-
-	divOpcoes.innerHTML = "";
-
-	var div = document.createElement('div');
-	div.innerHTML = "Add Filho";
-	$(div).bind('click', function () {
-		$(divOpcoes).hide();
-		adicionarFilho(nodo.pk);
-	});
-	$(divOpcoes).append(div);
-
-	if (nodo.filhos.isEmpty()) {
-		div = document.createElement('div');
-		div.innerHTML = "Editar Valor";
-		$(div).bind('click', function () {
-			$(divOpcoes).hide();
-			editar(nodo.pk);
-		});
-		$(divOpcoes).append(div);
-	}
-
-	if (nodo.pk != raiz.pk) {
-		div = document.createElement('div');
-		div.innerHTML = "Excluir Nodo";
-		$(div).bind('click', function () {
-			$(divOpcoes).hide();
-			excluirNodo(nodo.pk, true);
-		});
-		$(divOpcoes).append(div);
-	}
-
-	$("#main").append(divOpcoes);
-	$(divOpcoes).css('position', 'absolute');
-	$(divOpcoes).css('left', e.offsetX + 'px');
-	$(divOpcoes).css('top', e.offsetY + 'px');
-	$(divOpcoes).show();
-
+	// Select or Deselect
+	selectedNode = nodo;
+	tela.draw();
 }
+
 
 function Nodo() {
 	this.pk;
@@ -153,6 +116,7 @@ function Nodo() {
 	this.pai = null;
 	this.filhos = new Array();
 	this.podaIneficaz = false;
+	this.explorado = false;
 
 	this.x;
 	this.y;
@@ -422,6 +386,7 @@ function limpaValoresEQuebras() {
 	for (var i = 0; i < nodos.length; i++) {
 		nodos[i].quebra = false;
 		nodos[i].podaIneficaz = false;
+		nodos[i].explorado = false;
 		if (!nodos[i].filhos.isEmpty()) {
 			nodos[i].valor = null;
 		}
@@ -436,6 +401,7 @@ function clonaNodo(nodo, newPai) {
 	n.valor = nodo.valor;
 	n.quebra = nodo.quebra;
 	n.podaIneficaz = nodo.podaIneficaz;
+	n.explorado = nodo.explorado;
 	n.pai = newPai;
 	n.filhos = new Array();
 	for (var i = 0; i < nodo.filhos.length; i++) {
@@ -495,6 +461,7 @@ function criaMiniMax() {
 }
 
 function minimax(nodo) {
+	nodo.explorado = true;
 	execucao.add(getEstadoAtual(nodo));
 
 	if (!nodo.filhos.isEmpty()) {
@@ -542,6 +509,7 @@ function criaPoda() {
 }
 
 function poda(nodo) {
+	nodo.explorado = true;
 	execucao.add(getEstadoAtual(nodo));
 	if (!nodo.filhos.isEmpty()) {
 		var quebra = false;
@@ -657,6 +625,11 @@ function drawTela(nodoList) {
 		if (nodoList[i].pai != null) {
 			context.beginPath();
 			context.strokeStyle = "black";
+			if (nodoList[i].explorado) {
+				context.lineWidth = 3;
+			} else {
+				context.lineWidth = 1;
+			}
 			context.moveTo(nodoList[i].x, nodoList[i].y);
 			context.lineTo(nodoList[i].pai.x, nodoList[i].pai.y);
 			context.stroke();
@@ -684,7 +657,9 @@ function drawTela(nodoList) {
 					context.moveTo(centroX - 10, centroY + 10);
 					context.lineTo(centroX + 10, centroY - 10);
 				}
+				context.lineWidth = 5; // Bolder lines for symbols
 				context.stroke();
+				context.lineWidth = 1; // Reset
 				context.closePath();
 			}
 
@@ -727,7 +702,7 @@ function drawNodo(color) {
 
 	if (this.podaIneficaz) {
 		color = "orange"; // Highlight for ineffective pruning
-		context.lineWidth = 3;
+		context.lineWidth = 6;
 	} else {
 		context.lineWidth = 1;
 	}
@@ -739,6 +714,17 @@ function drawNodo(color) {
 	context.arc(this.x, this.y, alturaNodo / 2 + 2, 0, 2 * Math.PI, false);
 	context.fill();
 	context.closePath();
+
+	// Highlight Selected Node
+	if (this == selectedNode) {
+		context.beginPath();
+		context.strokeStyle = "cyan";
+		context.lineWidth = 4;
+		context.arc(this.x, this.y, alturaNodo / 2 + 6, 0, 2 * Math.PI, false);
+		context.stroke();
+		context.closePath();
+		context.lineWidth = 1; // reset
+	}
 
 	context.fillStyle = fillstyle;
 	context.beginPath();
@@ -850,25 +836,25 @@ function gerarExemplo() {
 	adicionarFilho(12);
 	adicionarFilho(12);
 
-	nodos[13].valor = -1;
-	nodos[14].valor = -3;
+	nodos[12].valor = -1;
+	nodos[13].valor = -3;
+	nodos[14].valor = -2;
 	nodos[15].valor = -2;
-	nodos[16].valor = -2;
+	nodos[16].valor = 1;
 	nodos[17].valor = 1;
-	nodos[18].valor = 1;
-	nodos[29].valor = 3;
-	nodos[20].valor = 4;
+	nodos[18].valor = 3;
+	nodos[19].valor = 4;
+	nodos[20].valor = 1;
 	nodos[21].valor = 1;
-	nodos[22].valor = 1;
-	nodos[23].valor = 2;
-	nodos[24].valor = -1;
-	nodos[25].valor = 1;
-	nodos[26].valor = 0;
-	nodos[27].valor = 1;
-	nodos[28].valor = 3;
-	nodos[29].valor = 2;
-	nodos[30].valor = -1;
-	nodos[31].valor = -4;
+	nodos[22].valor = 2;
+	nodos[23].valor = -1;
+	nodos[24].valor = 1;
+	nodos[25].valor = 0;
+	nodos[26].valor = 1;
+	nodos[27].valor = 3;
+	nodos[28].valor = 2;
+	nodos[29].valor = -1;
+	nodos[30].valor = -4;
 
 	tela.draw();
 }
@@ -881,46 +867,103 @@ var espacoNivel = 50
 // TODO (ou não) arrastar bolinhas
 
 function definirValoresLista() {
-	var lista = prompt("Enter values separated by commas, spaces, or semicolons:");
-	if (!lista) return;
+	showModal("Set Values (List)", "<p>Enter values separated by space, comma or semicolon:</p><input type='text' id='list-input' style='width: 100%; box-sizing: border-box;'>", function () {
+		var lista = document.getElementById('list-input').value;
+		if (!lista) return;
 
-	var valores = lista.split(/[\s,;]+/);
-	var leafIndex = 0;
+		var valores = lista.split(/[\s,;]+/);
 
-	// Collect leaf nodes
-	var leaves = [];
-	for (var i = 0; i < nodos.length; i++) {
-		if (nodos[i].filhos.isEmpty()) {
-			leaves.push(nodos[i]);
-		}
-	}
-
-	// Sort leaves by x position to ensure left-to-right assignment
-	// Note: 'x' might not be set if not drawn yet, but usually is. 
-	// If not, we rely on the order in 'nodos' which is usually creation order (DFS-ish).
-	// Let's rely on the order in 'nodos' for now as it's cleaner for this implementation 
-	// unless the user rearranged them. But 'nodos' array usually keeps creation order.
-	// Actually, to be safe, let's sort by 'x' if available, or just traverse.
-
-	// Better approach: traverse tree DFS to find leaves in order.
-	leaves = [];
-	function collectLeaves(nodo) {
-		if (nodo.filhos.isEmpty()) {
-			leaves.push(nodo);
-		} else {
-			for (var i = 0; i < nodo.filhos.length; i++) {
-				collectLeaves(nodo.filhos[i]);
+		// Better approach: traverse tree DFS to find leaves in order.
+		var leaves = [];
+		function collectLeaves(nodo) {
+			if (nodo.filhos.isEmpty()) {
+				leaves.push(nodo);
+			} else {
+				for (var i = 0; i < nodo.filhos.length; i++) {
+					collectLeaves(nodo.filhos[i]);
+				}
 			}
 		}
-	}
-	collectLeaves(raiz);
+		collectLeaves(raiz);
 
 
-	for (var i = 0; i < leaves.length && i < valores.length; i++) {
-		var val = parseFloat(valores[i]);
-		if (!isNaN(val)) {
-			leaves[i].valor = val;
+		for (var i = 0; i < leaves.length && i < valores.length; i++) {
+			var val = parseFloat(valores[i]);
+			if (!isNaN(val)) {
+				leaves[i].valor = val;
+			}
 		}
+		tela.draw();
+	});
+}
+
+/** UI Helper Functions & Modal System */
+
+function uiReset() {
+	selectedNode = null;
+	excluirTudo();
+}
+
+function uiAddFilho(n) {
+	if (!selectedNode) {
+		showModal("Error", "Select a node first!", null);
+		return;
 	}
-	tela.draw();
+	for (var i = 0; i < n; i++) {
+		adicionarFilho(selectedNode.pk);
+	}
+}
+
+function uiSetValor() {
+	if (!selectedNode) {
+		showModal("Error", "Select a node first!", null);
+		return;
+	}
+	if (!selectedNode.filhos.isEmpty()) {
+		showModal("Error", "Only leaf nodes can have values!", null);
+		return;
+	}
+
+	showModal("Set Value", "<input type='number' id='node-val-input' value='" + (selectedNode.valor || "") + "'>", function () {
+		var val = document.getElementById('node-val-input').value;
+		if (isNumber(val)) {
+			selectedNode.valor = val;
+			tela.draw();
+		} else {
+			showModal("Error", "Invalid Number", null);
+		}
+	});
+}
+
+function uiRemoveNode() {
+	if (!selectedNode) return;
+	if (selectedNode == raiz) {
+		showModal("Error", "Cannot remove root", null);
+		return;
+	}
+
+	// Using existing excluding logic but wrapped to confirm
+	showModal("Confirm Deletion", "Are you sure you want to delete this node and its children?", function () {
+		excluirNodo(selectedNode.pk, false); // false to suppress internal confirm
+		selectedNode = null;
+		tela.draw();
+	});
+}
+
+
+/* Modal System */
+function showModal(title, htmlContent, onConfirm) {
+	$("#modal-title").text(title);
+	$("#modal-content").html(htmlContent);
+	$("#modal-overlay").css("display", "flex");
+
+	// Unbind previous events to avoid stacking
+	$("#modal-confirm").off("click").on("click", function () {
+		if (onConfirm) onConfirm();
+		closeModal();
+	});
+}
+
+function closeModal() {
+	$("#modal-overlay").hide();
 }
