@@ -8,46 +8,46 @@
  *
  * 04 de dezembro de 2012
  */
-Array.prototype.contains = function(object) {
-	for(i = 0; i < this.length; i++){
-		if(this[i] == object){
+Array.prototype.contains = function (object) {
+	for (i = 0; i < this.length; i++) {
+		if (this[i] == object) {
 			return i;
 		}
 	}
 	return -1;
 };
 
-Array.prototype.add = function(object) {
-	if(object === null && this.contains(object) >= 0){
+Array.prototype.add = function (object) {
+	if (object === null && this.contains(object) >= 0) {
 		return false;
 	}
-	else{
+	else {
 		this[this.length] = object;
 		return true;
 	}
 };
 
-Array.prototype.remove = function(from, to) {
+Array.prototype.remove = function (from, to) {
 	var rest = this.slice((to || from) + 1 || this.length);
 	this.length = from < 0 ? this.length + from : from;
 	return this.push.apply(this, rest);
 };
 
-Array.prototype.isEmpty = function() {
-	if(this == null || this.length == 0){
+Array.prototype.isEmpty = function () {
+	if (this == null || this.length == 0) {
 		return true;
 	}
-	else{
+	else {
 		return false;
 	}
 };
 
 function isInCircle(x, y, center_x, center_y, radius) {
-	return (Math.pow(x-center_x, 2) + Math.pow(y - center_y, 2) < radius*radius)
+	return (Math.pow(x - center_x, 2) + Math.pow(y - center_y, 2) < radius * radius)
 }
 
 function isNumber(n) {
-    return !isNaN(parseFloat(n)) && isFinite(n);
+	return !isNaN(parseFloat(n)) && isFinite(n);
 }
 
 
@@ -77,14 +77,14 @@ function init() {
 
 	// adiciona raiz à lista de nodos
 	nodos.add(raiz);
-	
+
 	divOpcoes = document.createElement('div');
 	divOpcoes.id = "divOpcoes";
 
 	// sei la o q ... canvas
 	canvas = document.getElementById('drawing');
 	context = canvas.getContext('2d');
-	
+
 	canvas.addEventListener('mousedown', ckmouse, false);
 
 	// desenha a tela
@@ -92,7 +92,7 @@ function init() {
 }
 
 function ckmouse(e) {
-	
+
 	$(divOpcoes).hide();
 
 	var nodo = null;
@@ -103,47 +103,47 @@ function ckmouse(e) {
 			break;
 		}
 	}
-	
+
 	if (nodo == null) {
 		return;
 	}
-	
+
 	divOpcoes.innerHTML = "";
-	
+
 	var div = document.createElement('div');
 	div.innerHTML = "Add Filho";
-	$(div).bind('click', function(){
+	$(div).bind('click', function () {
 		$(divOpcoes).hide();
 		adicionarFilho(nodo.pk);
 	});
 	$(divOpcoes).append(div);
-	
+
 	if (nodo.filhos.isEmpty()) {
 		div = document.createElement('div');
 		div.innerHTML = "Editar Valor";
-		$(div).bind('click', function(){
+		$(div).bind('click', function () {
 			$(divOpcoes).hide();
 			editar(nodo.pk);
 		});
 		$(divOpcoes).append(div);
 	}
-	
+
 	if (nodo.pk != raiz.pk) {
 		div = document.createElement('div');
 		div.innerHTML = "Excluir Nodo";
-		$(div).bind('click', function(){
+		$(div).bind('click', function () {
 			$(divOpcoes).hide();
 			excluirNodo(nodo.pk, true);
 		});
 		$(divOpcoes).append(div);
 	}
-		
+
 	$("#main").append(divOpcoes);
 	$(divOpcoes).css('position', 'absolute');
 	$(divOpcoes).css('left', e.offsetX + 'px');
 	$(divOpcoes).css('top', e.offsetY + 'px');
 	$(divOpcoes).show();
-	
+
 }
 
 function Nodo() {
@@ -152,6 +152,7 @@ function Nodo() {
 	this.quebra = false;
 	this.pai = null;
 	this.filhos = new Array();
+	this.podaIneficaz = false;
 
 	this.x;
 	this.y;
@@ -194,9 +195,9 @@ function adicionarFilho(pkPai) {
 	var height = t.height;
 	var temp = nodo.y;
 	if (nodo.nivel > 7) {
-		if ((temp+50) > height) {
-			t.height = temp+50;
-			tela.altura = temp+50;
+		if ((temp + 50) > height) {
+			t.height = temp + 50;
+			tela.altura = temp + 50;
 		}
 	}
 
@@ -213,7 +214,7 @@ function reorganiza(nodo) {
 
 			var posInicial = 0;
 			var quant = pai.filhos.length;
-			var larg = (pai.x + larguraNodo/2) * 2;
+			var larg = (pai.x + larguraNodo / 2) * 2;
 
 			// se não for raiz
 			if (pai.pk != 1) {
@@ -221,25 +222,25 @@ function reorganiza(nodo) {
 				while (paiCalculo.pai.filhos.length < 2 && paiCalculo.pai.pai != null) {
 					paiCalculo = paiCalculo.pai;
 				}
-				
+
 				var pos = paiCalculo.pai.filhos.contains(paiCalculo);
 				if (pos == 0) {
 					if (paiCalculo.pai.filhos.length > 1) {
-						var paiAnt = paiCalculo.pai.filhos[pos+1];
+						var paiAnt = paiCalculo.pai.filhos[pos + 1];
 						larg = paiAnt.x - paiCalculo.x;
-						posInicial = paiCalculo.x - larg/2 + larguraNodo;
+						posInicial = paiCalculo.x - larg / 2 + larguraNodo;
 						larg -= larguraNodo;
 					}
 				} else {
-					var paiAnt = paiCalculo.pai.filhos[pos-1];
+					var paiAnt = paiCalculo.pai.filhos[pos - 1];
 					larg = paiCalculo.x - paiAnt.x;
-					posInicial = larg/2 + larguraNodo + paiAnt.x;
+					posInicial = larg / 2 + larguraNodo + paiAnt.x;
 					larg -= larguraNodo;
 				}
 			}
 
-			var largNodo = larg/quant; // se menor q 50, n deixa add
-			var nodoX = largNodo/2 - larguraNodo/2;
+			var largNodo = larg / quant; // se menor q 50, n deixa add
+			var nodoX = largNodo / 2 - larguraNodo / 2;
 			var acum = posInicial;
 			for (var i = 0; i < quant; i++) {
 				pai.filhos[i].x = acum + nodoX;
@@ -247,7 +248,7 @@ function reorganiza(nodo) {
 			}
 		}
 	}
-	
+
 	if (!nodo.filhos.isEmpty()) {
 		for (var i = 0; i < nodo.filhos.length; i++) {
 			reorganiza(nodo.filhos[i]);
@@ -263,7 +264,7 @@ function calculoPosPai(nivelAtual) {
 		if (nodo.nivel == nivelAtual - 1 && nodo.x == null) {
 			var quantFilhos = nodo.filhos.length;
 			var menorX = nodo.filhos[0].x;
-			var maiorX = nodo.filhos[quantFilhos-1].x;
+			var maiorX = nodo.filhos[quantFilhos - 1].x;
 
 			nodo.x = (menorX + maiorX) / 2;
 		}
@@ -315,20 +316,20 @@ function reorganizaNew() {
 	}
 }
 
-function editar (pkNodo) {
+function editar(pkNodo) {
 	var nodo = findByPK(pkNodo);
 	if (nodo == null) {
 		alert("Node does not exist.");
 		return false;
 	}
 	var valor = prompt("Type a number:");
-	
+
 	if (!isNumber(valor)) {
 		alert("That is not a number.");
 		return;
 	}
 	nodo.valor = valor;
-	
+
 	tela.draw();
 }
 
@@ -354,7 +355,7 @@ function excluirNodo(pkNodo, alertar) {
 		alert("Node doesn't exist.");
 		return false;
 	}
-	
+
 	if (!nodo.filhos.isEmpty()) {
 		var resposta = true;
 		if (alertar) {
@@ -365,7 +366,7 @@ function excluirNodo(pkNodo, alertar) {
 				excluirNodo(nodo.filhos[0].pk, false);
 			}
 			//for (var i = 0; i < nodo.filhos.length; i++) {
-				
+
 			//}
 		} else {
 			return;
@@ -420,6 +421,7 @@ function finalizarExecucao() {
 function limpaValoresEQuebras() {
 	for (var i = 0; i < nodos.length; i++) {
 		nodos[i].quebra = false;
+		nodos[i].podaIneficaz = false;
 		if (!nodos[i].filhos.isEmpty()) {
 			nodos[i].valor = null;
 		}
@@ -433,6 +435,7 @@ function clonaNodo(nodo, newPai) {
 	//n.pk = nodo.pk;
 	n.valor = nodo.valor;
 	n.quebra = nodo.quebra;
+	n.podaIneficaz = nodo.podaIneficaz;
 	n.pai = newPai;
 	n.filhos = new Array();
 	for (var i = 0; i < nodo.filhos.length; i++) {
@@ -480,7 +483,7 @@ function getEstadoAtual(nodoAtual) {
 }
 
 function criaMiniMax() {
-	if (folhasPreenchidas()){
+	if (folhasPreenchidas()) {
 		limpaValoresEQuebras();
 		execucao = new Array();
 		focoExecucao = new Array();
@@ -494,7 +497,7 @@ function criaMiniMax() {
 function minimax(nodo) {
 	execucao.add(getEstadoAtual(nodo));
 
-	if (!nodo.filhos.isEmpty()){
+	if (!nodo.filhos.isEmpty()) {
 		for (var i = 0; i < nodo.filhos.length; i++) {
 			console.log("nodo => " + nodo.filhos[i].pk);
 			minimax(nodo.filhos[i]);
@@ -507,27 +510,27 @@ function minimax(nodo) {
 		nodo.pai.valor = nodo.valor;
 	} else {
 		var max = false;
-		if (nodo.nivel%2 == 0){
+		if (nodo.nivel % 2 == 0) {
 			max = true;
 		}
 		var valorNodo = Math.floor(nodo.valor);
 		var valorPai = Math.floor(nodo.pai.valor);
 		if (max) {
-			if(valorNodo < valorPai){
+			if (valorNodo < valorPai) {
 				nodo.pai.valor = nodo.valor;
 			}
 		} else {
-			if(valorNodo > valorPai){
+			if (valorNodo > valorPai) {
 				nodo.pai.valor = nodo.valor;
 			}
 		}
 	}
 	execucao.add(getEstadoAtual(nodo));
-	focoExecucao[focoExecucao.length-1] = focoExecucao[focoExecucao.length-1].pai;
+	focoExecucao[focoExecucao.length - 1] = focoExecucao[focoExecucao.length - 1].pai;
 }
 
 function criaPoda() {
-	if (folhasPreenchidas()){
+	if (folhasPreenchidas()) {
 		limpaValoresEQuebras();
 		execucao = new Array();
 		focoExecucao = new Array();
@@ -540,13 +543,16 @@ function criaPoda() {
 
 function poda(nodo) {
 	execucao.add(getEstadoAtual(nodo));
-	if (!nodo.filhos.isEmpty()){
+	if (!nodo.filhos.isEmpty()) {
 		var quebra = false;
 		for (var i = 0; i < nodo.filhos.length; i++) {
 			console.log("nodo => " + nodo.filhos[i].pk);
 
 			if (!quebra) {
 				quebra = poda(nodo.filhos[i]);
+				if (quebra && i == nodo.filhos.length - 1) {
+					nodo.podaIneficaz = true;
+				}
 			} else {
 				nodo.filhos[i].quebra = true;
 			}
@@ -557,7 +563,7 @@ function poda(nodo) {
 	}
 
 	var max = false;
-	if (nodo.nivel%2 == 0){
+	if (nodo.nivel % 2 == 0) {
 		max = true;
 	}
 
@@ -567,17 +573,17 @@ function poda(nodo) {
 		var valorNodo = Math.floor(nodo.valor);
 		var valorPai = Math.floor(nodo.pai.valor);
 		if (max) {
-			if(valorNodo < valorPai){
+			if (valorNodo < valorPai) {
 				nodo.pai.valor = nodo.valor;
 			}
 		} else {
-			if(valorNodo > valorPai){
+			if (valorNodo > valorPai) {
 				nodo.pai.valor = nodo.valor;
 			}
 		}
 	}
 	execucao.add(getEstadoAtual(nodo));
-	focoExecucao[focoExecucao.length-1] = focoExecucao[focoExecucao.length-1].pai;
+	focoExecucao[focoExecucao.length - 1] = focoExecucao[focoExecucao.length - 1].pai;
 
 	return testaPodaPai(nodo, max);
 }
@@ -593,7 +599,7 @@ function testaPodaPai(nodo, max) {
 
 	var nodoAux = nodo.pai.pai;
 	while (nodoAux != null) {
-		if ((nodoAux.nivel%2 == 0) == max) {
+		if ((nodoAux.nivel % 2 == 0) == max) {
 			if (nodoAux.valor != null) {
 				if (max) {
 					if (Math.floor(valor) <= Math.floor(nodoAux.valor)) {
@@ -646,8 +652,8 @@ function drawTela(nodoList) {
 		}
 	}
 
-			
-	for(var i = 0; i < nodoList.length; i++){
+
+	for (var i = 0; i < nodoList.length; i++) {
 		if (nodoList[i].pai != null) {
 			context.beginPath();
 			context.strokeStyle = "black";
@@ -656,27 +662,38 @@ function drawTela(nodoList) {
 			context.stroke();
 			context.closePath();
 
-			// se nodo possui quebra, desenha o X
+			// se nodo possui quebra, desenha o simbolo correspondente
 			if (nodoList[i].quebra) {
 				context.beginPath();
 				context.strokeStyle = "red";
 				var centroX = (Math.floor(nodoList[i].x) + Math.floor(nodoList[i].pai.x)) / 2;
-				var centroY = (Math.floor(nodoList[i].y) + Math.floor(nodoList[i].pai.y)) / 2
-				context.moveTo(centroX-10, centroY-10);
-				context.lineTo(centroX+10, centroY+10);
+				var centroY = (Math.floor(nodoList[i].y) + Math.floor(nodoList[i].pai.y)) / 2;
 
-				context.moveTo(centroX-10, centroY+10);
-				context.lineTo(centroX+10, centroY-10);
+				var parentIsMax = (nodoList[i].pai.nivel % 2 == 0);
+
+				if (parentIsMax) {
+					// Parent is MAX -> Beta Cut -> Draw '+'
+					context.moveTo(centroX, centroY - 12);
+					context.lineTo(centroX, centroY + 12);
+					context.moveTo(centroX - 12, centroY);
+					context.lineTo(centroX + 12, centroY);
+				} else {
+					// Parent is MIN -> Alpha Cut -> Draw 'X'
+					context.moveTo(centroX - 10, centroY - 10);
+					context.lineTo(centroX + 10, centroY + 10);
+					context.moveTo(centroX - 10, centroY + 10);
+					context.lineTo(centroX + 10, centroY - 10);
+				}
 				context.stroke();
 				context.closePath();
 			}
-			
+
 			//context.moveTo(nodoList[i].x + larguraNodo/2,100);
 			//context.lineTo(200,200);
 		}
 	}
-	
-	for(var i = 0; i < nodoList.length; i++){
+
+	for (var i = 0; i < nodoList.length; i++) {
 		nodoList[i].draw();
 	}
 
@@ -685,14 +702,14 @@ function drawTela(nodoList) {
 		context.fillStyle = "rgba(200,200,200, 0.4)";
 		context.strokeStyle = "rgba(200,200,200, 0.4);"
 		context.font = "bold 22px 'Arial'";
-		
+
 		var str = new String(this.valor);
-		
-		context.fillText((i%2 ? "MIN" : "MAX"), 30, (espacoNivel+alturaNodo) + i*(espacoNivel+alturaNodo) - 17);
-		context.fillText((i%2 ? " MIN" : "MAX"), 926, (espacoNivel+alturaNodo) + i*(espacoNivel+alturaNodo) - 17);
-		
-		context.moveTo(30, (espacoNivel+alturaNodo) + i*(espacoNivel+alturaNodo) + 15);
-		context.lineTo(970, (espacoNivel+alturaNodo) + i*(espacoNivel+alturaNodo) + 15);
+
+		context.fillText((i % 2 ? "MIN" : "MAX"), 30, (espacoNivel + alturaNodo) + i * (espacoNivel + alturaNodo) - 17);
+		context.fillText((i % 2 ? " MIN" : "MAX"), 926, (espacoNivel + alturaNodo) + i * (espacoNivel + alturaNodo) - 17);
+
+		context.moveTo(30, (espacoNivel + alturaNodo) + i * (espacoNivel + alturaNodo) + 15);
+		context.lineTo(970, (espacoNivel + alturaNodo) + i * (espacoNivel + alturaNodo) + 15);
 		context.stroke();
 
 	}
@@ -707,37 +724,45 @@ function drawNodo(color) {
 		fillstyle = "rgb(240,240,240)";
 		firstfill = color;
 	}
+
+	if (this.podaIneficaz) {
+		color = "orange"; // Highlight for ineffective pruning
+		context.lineWidth = 3;
+	} else {
+		context.lineWidth = 1;
+	}
+
 	context.fillStyle = firstfill;
 	context.strokeStyle = color;
 	var y = this.nivel * (alturaNodo + espacoNivel) + 50;
 	context.beginPath();
-	context.arc(this.x, this.y, alturaNodo/2+2, 0, 2 * Math.PI, false);
+	context.arc(this.x, this.y, alturaNodo / 2 + 2, 0, 2 * Math.PI, false);
 	context.fill();
 	context.closePath();
-	
+
 	context.fillStyle = fillstyle;
 	context.beginPath();
 	//context.strokeRect(this.x, y, larguraNodo, alturaNodo);
-	context.arc(this.x, this.y, alturaNodo/2, 0, 2 * Math.PI, false);
+	context.arc(this.x, this.y, alturaNodo / 2, 0, 2 * Math.PI, false);
 	context.stroke();
 	context.fill();
 	context.closePath();
-	
+
 	if (this.valor != null) {
 		context.fillStyle = "blue";
 		context.font = "bold 13px 'Courier New'";
-		
+
 		var str = new String(this.valor);
 		var pxLetra = 8;
 		var larg = pxLetra * str.length;
-		
-		context.fillText(this.valor, this.x - larg/2, this.y + 4);
+
+		context.fillText(this.valor, this.x - larg / 2, this.y + 4);
 	}
 }
 
 function excluirTudo() {
 	limpaValoresEQuebras();
-	nodos.remove(1, nodos.length-1);
+	nodos.remove(1, nodos.length - 1);
 	nodos[0].x = (tela.largura - larguraNodo) / 2;
 	nodos[0].valor = null;
 	nodos[0].filhos = new Array();
@@ -750,35 +775,35 @@ function excluirTudo() {
 	tela.draw();
 }
 
-$("document").ready(function(){
+$("document").ready(function () {
 
 	init();
 
 	$("button").button();
 
 
-    $(function() {
-        $( "#dialog-sobre" ).dialog({
-            autoOpen: false,
-            width: 420,
-            height: 290,
-            modal: true,
-            resizable: false,
-            show: "slide",
-            hide: "explode"
-        });
-    });
+	$(function () {
+		$("#dialog-sobre").dialog({
+			autoOpen: false,
+			width: 420,
+			height: 290,
+			modal: true,
+			resizable: false,
+			show: "slide",
+			hide: "explode"
+		});
+	});
 
-    $(document).keydown(function(e){
-    	var key = e.which;
-    	if ($("#menu_execucao").css('display') != "none") {
-	    	if (key == 37) {
-	    		executarPassoAnterior();
-	    	} else if (key == 39) {
-	    		executarProximoPasso();
-	    	}
-	    }
-    });
+	$(document).keydown(function (e) {
+		var key = e.which;
+		if ($("#menu_execucao").css('display') != "none") {
+			if (key == 37) {
+				executarPassoAnterior();
+			} else if (key == 39) {
+				executarProximoPasso();
+			}
+		}
+	});
 
 });
 
@@ -787,55 +812,63 @@ function gerarExemplo() {
 
 	adicionarFilho(1);
 	adicionarFilho(1);
+	adicionarFilho(1);
 
 	adicionarFilho(2);
 	adicionarFilho(2);
 	adicionarFilho(3);
 	adicionarFilho(3);
+	adicionarFilho(3);
+	adicionarFilho(4);
+	adicionarFilho(4);
+	adicionarFilho(4);
 
-	adicionarFilho(4);
-	adicionarFilho(4);
 	adicionarFilho(5);
 	adicionarFilho(5);
+	adicionarFilho(5);
+
 	adicionarFilho(6);
 	adicionarFilho(6);
+
 	adicionarFilho(7);
 	adicionarFilho(7);
 
 	adicionarFilho(8);
 	adicionarFilho(8);
+
 	adicionarFilho(9);
 	adicionarFilho(9);
+
 	adicionarFilho(10);
 	adicionarFilho(10);
+
 	adicionarFilho(11);
 	adicionarFilho(11);
+	adicionarFilho(11);
+
 	adicionarFilho(12);
 	adicionarFilho(12);
-	adicionarFilho(13);
-	adicionarFilho(13);
-	adicionarFilho(14);
-	adicionarFilho(14);
-	adicionarFilho(15);
-	adicionarFilho(15);
+	adicionarFilho(12);
 
-
-	nodos[15].valor = 8;
-	nodos[16].valor = 23;
-	nodos[17].valor = -47;
-	nodos[18].valor = 28;
-	nodos[19].valor = -30;
-	nodos[20].valor = -37;
-	nodos[21].valor = 3;
-	nodos[22].valor = -41;
-	nodos[23].valor = -19;
-	nodos[24].valor = 4;
-	nodos[25].valor = -49;
-	nodos[26].valor = 4;
-	nodos[27].valor = 43;
-	nodos[28].valor = 45;
-	nodos[29].valor = -26;
-	nodos[30].valor = -14;
+	nodos[13].valor = -1;
+	nodos[14].valor = -3;
+	nodos[15].valor = -2;
+	nodos[16].valor = -2;
+	nodos[17].valor = 1;
+	nodos[18].valor = 1;
+	nodos[29].valor = 3;
+	nodos[20].valor = 4;
+	nodos[21].valor = 1;
+	nodos[22].valor = 1;
+	nodos[23].valor = 2;
+	nodos[24].valor = -1;
+	nodos[25].valor = 1;
+	nodos[26].valor = 0;
+	nodos[27].valor = 1;
+	nodos[28].valor = 3;
+	nodos[29].valor = 2;
+	nodos[30].valor = -1;
+	nodos[31].valor = -4;
 
 	tela.draw();
 }
@@ -846,3 +879,48 @@ var alturaNodo = 25;
 var espacoNivel = 50
 
 // TODO (ou não) arrastar bolinhas
+
+function definirValoresLista() {
+	var lista = prompt("Enter values separated by commas, spaces, or semicolons:");
+	if (!lista) return;
+
+	var valores = lista.split(/[\s,;]+/);
+	var leafIndex = 0;
+
+	// Collect leaf nodes
+	var leaves = [];
+	for (var i = 0; i < nodos.length; i++) {
+		if (nodos[i].filhos.isEmpty()) {
+			leaves.push(nodos[i]);
+		}
+	}
+
+	// Sort leaves by x position to ensure left-to-right assignment
+	// Note: 'x' might not be set if not drawn yet, but usually is. 
+	// If not, we rely on the order in 'nodos' which is usually creation order (DFS-ish).
+	// Let's rely on the order in 'nodos' for now as it's cleaner for this implementation 
+	// unless the user rearranged them. But 'nodos' array usually keeps creation order.
+	// Actually, to be safe, let's sort by 'x' if available, or just traverse.
+
+	// Better approach: traverse tree DFS to find leaves in order.
+	leaves = [];
+	function collectLeaves(nodo) {
+		if (nodo.filhos.isEmpty()) {
+			leaves.push(nodo);
+		} else {
+			for (var i = 0; i < nodo.filhos.length; i++) {
+				collectLeaves(nodo.filhos[i]);
+			}
+		}
+	}
+	collectLeaves(raiz);
+
+
+	for (var i = 0; i < leaves.length && i < valores.length; i++) {
+		var val = parseFloat(valores[i]);
+		if (!isNaN(val)) {
+			leaves[i].valor = val;
+		}
+	}
+	tela.draw();
+}
